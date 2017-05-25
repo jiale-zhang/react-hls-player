@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@types/hls.js": "^0.7.0",
+    "@types/react": "^15.0.25",
+    "hls.js": "^0.7.8",
+    "react": "^15.5.4",
+    "ts-loader": "^2.1.0",
+    "typescript": "^2.3.3",
+    "webpack": "^2.6.1"
+  }
+}
