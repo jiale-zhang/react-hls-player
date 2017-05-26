@@ -8,7 +8,7 @@ const mountFlash = ({ name, flashPath, callback }) => ({
         <param name="swliveconnect" value="true" />
         <param name="allowScriptAccess" value="always" />
         <param name="bgcolor" value="#0" />
-        <param name="allowFullScreen" value="true" />
+        <param name="allowFullScreen" value="false" />
         <param name="wmode" value="window" />
         <param name="FlashVars" value="callback=${callback}" />
         <embed
@@ -18,7 +18,8 @@ const mountFlash = ({ name, flashPath, callback }) => ({
             name="${name}"
             quality="autohigh"
             bgcolor="#0"
-            align="middle" allowFullScreen="true"
+            align="middle"
+            allowFullScreen="false"
             allowScriptAccess="always"
             type="application/x-shockwave-flash"
             swliveconnect="true"
@@ -29,18 +30,13 @@ const mountFlash = ({ name, flashPath, callback }) => ({
     </object>`
 })
 
-const VideoControls: React.StatelessComponent<any> = () => (
-    <div>
-
-    </div>
-)
-
 interface FlashVideoProps {
     flashPath: string
-    controls?: boolean
-    width?: number
-    height?: number
-    poster?: string
+    src?: string
+    autoPlay?: boolean
+    muted: boolean
+    onManifestLoaded: any
+    onPositionChange: any
 }
 
 export default class FlashVideo extends React.Component<FlashVideoProps, any> {
@@ -48,51 +44,65 @@ export default class FlashVideo extends React.Component<FlashVideoProps, any> {
     id: number = document.embeds.length
     name: string = `flashVideo${this.id}`
     callbackName: string = `flashVideoCallback${this.id}`
-    player: any
-
-    state = {
-        height: this.props.height
-    }
+    volume: number = 30
 
     componentWillMount() {
         window[this.callbackName] = this.callback.bind(this)
     }
 
-    callback(eventName, args) {
-        switch (eventName) {
-            case 'ready':
-                this.initPlayer()
+    componentWillReceiveProps({ muted }) {
+        if (typeof muted !== 'undefined') {
+            this.flashObject.playerVolume(muted ? 0 : this.volume)
         }
     }
 
-    get height() {
-        return this.state.height
+    callback(eventName, args) {
+        console.log([eventName, args])
+        switch (eventName) {
+            case 'ready':
+                this.initPlayer()
+                break
+            case 'manifest':
+                this.props.onManifestLoaded({
+                    duration: this.flashObject.getDuration()
+                })
+                if (this.props.autoPlay) {
+                    this.play()
+                }
+                break
+            case 'position':
+                this.props.onPositionChange({ duration: args[0].duration, currentTime: args[0].position })
+            default:
+                break
+        }
     }
 
-    set height(height: number) {
-        this.setState({
-            height: height
-        })
-    }
-
-    initPlayer() {
-        this.player = document[this.name] || document.embeds[this.name]
+    private initPlayer() {
+        this.flashObject = document[this.name] || document.embeds[this.name]
+        this.flashObject.playerLoad(this.props.src)
     }
 
     public play() {
+        this.flashObject.playerPlay()
+    }
 
+    public pause() {
+        this.flashObject.playerPause()
+    }
+
+    public resume() {
+        this.flashObject.playerResume()
+    }
+
+    public setVolume(volume) {
+        this.volume = volume * 100
+        this.flashObject.playerVolume(volume * 100)
     }
 
     render() {
-        let { flashPath, children, controls, width, height, ...props } = this.props
+        let { flashPath } = this.props
         return (
-            <div {...props} style={{ width, height, position: 'relative' }}>
-                <div dangerouslySetInnerHTML={mountFlash({ name: this.name, flashPath, callback: this.callbackName })}></div>
-                {
-                    controls ? <VideoControls /> : null
-                }
-            </div>
+            <div style={{ width: '100%', height: '100%' }} dangerouslySetInnerHTML={mountFlash({ name: this.name, flashPath, callback: this.callbackName })}></div>
         )
     }
-
 }
