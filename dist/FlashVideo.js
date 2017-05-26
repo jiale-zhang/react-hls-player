@@ -1,9 +1,15 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var mountFlash = function (_a) {
     var name = _a.name, flashPath = _a.flashPath, callback = _a.callback;
@@ -18,7 +24,7 @@ var FlashVideo = (function (_super) {
         _this.id = document.embeds.length;
         _this.name = "flashVideo" + _this.id;
         _this.callbackName = "flashVideoCallback" + _this.id;
-        _this.volume = 30;
+        _this.volume = 0;
         return _this;
     }
     FlashVideo.prototype.componentWillMount = function () {
@@ -54,14 +60,18 @@ var FlashVideo = (function (_super) {
         this.flashObject = document[this.name] || document.embeds[this.name];
         this.flashObject.playerLoad(this.props.src);
     };
-    FlashVideo.prototype.play = function () {
-        this.flashObject.playerPlay();
+    FlashVideo.prototype.play = function (offset) {
+        if (offset === void 0) { offset = 0; }
+        this.flashObject.playerPlay(offset);
     };
     FlashVideo.prototype.pause = function () {
         this.flashObject.playerPause();
     };
     FlashVideo.prototype.resume = function () {
         this.flashObject.playerResume();
+    };
+    FlashVideo.prototype.setPosition = function (offset) {
+        this.play(offset);
     };
     FlashVideo.prototype.setVolume = function (volume) {
         this.volume = volume * 100;
@@ -73,5 +83,4 @@ var FlashVideo = (function (_super) {
     };
     return FlashVideo;
 }(React.Component));
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = FlashVideo;

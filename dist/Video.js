@@ -1,9 +1,15 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
 var Hls = require("hls.js");
 var Video = (function (_super) {
@@ -45,12 +51,14 @@ var Video = (function (_super) {
     Video.prototype.setVolume = function (volume) {
         this.player.volume = volume;
     };
+    Video.prototype.setPosition = function (currentTime) {
+        this.player.currentTime = currentTime;
+    };
     Video.prototype.render = function () {
         var _this = this;
         var muted = this.props.muted;
-        return (React.createElement("video", { style: { width: '100%', height: '100%', backgroundColor: 'black' }, muted: muted, ref: function (video) { return _this.player = video; } }));
+        return (React.createElement("video", { style: { width: '100%', height: '100%', backgroundColor: 'black' }, controls: false, muted: muted, ref: function (video) { return _this.player = video; } }));
     };
     return Video;
 }(React.Component));
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Video;

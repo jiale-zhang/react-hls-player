@@ -44,7 +44,7 @@ export default class FlashVideo extends React.Component<FlashVideoProps, any> {
     id: number = document.embeds.length
     name: string = `flashVideo${this.id}`
     callbackName: string = `flashVideoCallback${this.id}`
-    volume: number = 30
+    volume: number = 0
 
     componentWillMount() {
         window[this.callbackName] = this.callback.bind(this)
@@ -82,8 +82,8 @@ export default class FlashVideo extends React.Component<FlashVideoProps, any> {
         this.flashObject.playerLoad(this.props.src)
     }
 
-    public play() {
-        this.flashObject.playerPlay()
+    public play(offset = 0) {
+        this.flashObject.playerPlay(offset)
     }
 
     public pause() {
@@ -92,6 +92,10 @@ export default class FlashVideo extends React.Component<FlashVideoProps, any> {
 
     public resume() {
         this.flashObject.playerResume()
+    }
+
+    public setPosition(offset) {
+        this.play(offset)
     }
 
     public setVolume(volume) {

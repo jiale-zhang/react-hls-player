@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as Hls from 'hls.js'
 import Video from './Video'
 import FlashVideo from './flashVideo'
+import Controls from './Controls'
 
 interface HlsPlayerProps {
     src: string
@@ -14,14 +15,14 @@ interface HlsPlayerProps {
 
 export default class HlsPlayer extends React.Component<HlsPlayerProps, any>{
 
-    isHlsSupported = true
+    isHlsSupported = Hls.isSupported
     player: Video | FlashVideo
     container: HTMLDivElement
 
     state = {
         paused: !this.props.autoPlay,
         muted: false,
-        volume: 1,
+        volume: 0,
         duration: 0,
         currentTime: 0,
         fullScreen: false
@@ -39,6 +40,7 @@ export default class HlsPlayer extends React.Component<HlsPlayerProps, any>{
         this.setState({
             currentTime
         })
+        this.player.setPosition(currentTime)
     }
 
     handleMute() {
@@ -55,8 +57,16 @@ export default class HlsPlayer extends React.Component<HlsPlayerProps, any>{
     }
 
     handleToggleFullScreen() {
+        const requestFullScreen = this.container['requestFullscreen'] || this.container['webkitRequestFullScreen'] || this.container['mozRequestFullScreen'] || this.container['msRequestFullscreen']
+        const exitFullScreen = document['exitFullscreen'] || document["webkitExitFullscreen"] || document['mozCancelFullScreen'] || document['msExitFullscreen']
+        let { fullScreen } = this.state
+        if(fullScreen){
+            exitFullScreen && exitFullScreen.bind(document)()
+        }else{
+            requestFullScreen && requestFullScreen.bind(this.container)()
+        }
         this.setState({
-            fullScreen: !this.state.fullScreen
+            fullScreen: !fullScreen
         })
     }
 
@@ -64,6 +74,7 @@ export default class HlsPlayer extends React.Component<HlsPlayerProps, any>{
         this.setState({
             duration
         })
+        this.player.setVolume(this.state.volume)
     }
 
     handlePositionChange({ duration, currentTime }) {
@@ -89,14 +100,18 @@ export default class HlsPlayer extends React.Component<HlsPlayerProps, any>{
                 }
                 {
                     this.props.controls ? (
-                        <div style={{ position: 'absolute', right: 0, bottom: 0, left: 0, height: '30px', color: '#fff', backgroundColor: 'rgba(0,0,0,0.3)' }}>
-                            <button onClick={this.handlePause.bind(this)}>{paused ? '播放' : '暂停'}</button>
-                            <span>{`${currentTime} / ${duration}`}</span>
-
-                            <button onClick={this.handleMute.bind(this)}>{'静音'}</button>
-
-                            <button onClick={this.handleToggleFullScreen.bind(this)}>{'全屏'}</button>
-                        </div>
+                        <Controls
+                            paused={paused}
+                            duration={duration}
+                            currentTime={currentTime}
+                            muted={muted}
+                            volume={volume}
+                            onPause={this.handlePause.bind(this)}
+                            onSetPosition={this.handleSetPosition.bind(this)}
+                            onMute={this.handleMute.bind(this)}
+                            onSetVolume={this.handleSetVolume.bind(this)}
+                            onToggleFullScreen={this.handleToggleFullScreen.bind(this)}
+                        />
                     ) : null
                 }
             </div>

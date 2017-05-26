@@ -54,10 +54,14 @@ export default class Video extends React.Component<VideoProps, any>{
         this.player.volume = volume
     }
 
+    public setPosition(currentTime) {
+        this.player.currentTime = currentTime
+    }
+
     render() {
         let { muted } = this.props
         return (
-            <video style={{ width: '100%', height: '100%', backgroundColor: 'black' }} muted={muted} ref={video => this.player = video}></video>
+            <video style={{ width: '100%', height: '100%', backgroundColor: 'black' }} controls={false} muted={muted} ref={video => this.player = video}></video>
         )
     }
 }

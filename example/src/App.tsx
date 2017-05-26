@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { render } from 'react-dom'
-import HlsPlayer from '../../dist'
+import HlsPlayer from '../../'
 
 class App extends React.Component<any, any>{
     render() {

@@ -5,5 +5,12 @@
     "hls.js": "^0.7.8",
     "react": "^15.5.4",
     "typescript": "^2.3.3"
-  }
+  },
+  "name": "react-hls-player",
+  "version": "1.0.0",
+  "description": "react-hls-player",
+  "main": "dist/index.js",
+  "repository": "git@github.com:jiale-zhang/react-hls-player.git",
+  "author": "zhang jiale <zhangjialecn@gmail.com>",
+  "license": "MIT"
 }

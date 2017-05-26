@@ -1,21 +1,29 @@
 "use strict";
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
 var React = require("react");
+var Hls = require("hls.js");
 var Video_1 = require("./Video");
 var flashVideo_1 = require("./flashVideo");
+var Controls_1 = require("./Controls");
 var HlsPlayer = (function (_super) {
     __extends(HlsPlayer, _super);
     function HlsPlayer() {
         var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.isHlsSupported = true;
+        _this.isHlsSupported = Hls.isSupported;
         _this.state = {
             paused: !_this.props.autoPlay,
             muted: false,
-            volume: 1,
+            volume: 0,
             duration: 0,
             currentTime: 0,
             fullScreen: false
@@ -33,6 +41,7 @@ var HlsPlayer = (function (_super) {
         this.setState({
             currentTime: currentTime
         });
+        this.player.setPosition(currentTime);
     };
     HlsPlayer.prototype.handleMute = function () {
         this.setState({
@@ -46,8 +55,17 @@ var HlsPlayer = (function (_super) {
         this.player.setVolume(volume);
     };
     HlsPlayer.prototype.handleToggleFullScreen = function () {
+        var requestFullScreen = this.container['requestFullscreen'] || this.container['webkitRequestFullScreen'] || this.container['mozRequestFullScreen'] || this.container['msRequestFullscreen'];
+        var exitFullScreen = document['exitFullscreen'] || document["webkitExitFullscreen"] || document['mozCancelFullScreen'] || document['msExitFullscreen'];
+        var fullScreen = this.state.fullScreen;
+        if (fullScreen) {
+            exitFullScreen && exitFullScreen.bind(document)();
+        }
+        else {
+            requestFullScreen && requestFullScreen.bind(this.container)();
+        }
         this.setState({
-            fullScreen: !this.state.fullScreen
+            fullScreen: !fullScreen
         });
     };
     HlsPlayer.prototype.handleManifestLoaded = function (_a) {
@@ -55,6 +73,7 @@ var HlsPlayer = (function (_super) {
         this.setState({
             duration: duration
         });
+        this.player.setVolume(this.state.volume);
     };
     HlsPlayer.prototype.handlePositionChange = function (_a) {
         var duration = _a.duration, currentTime = _a.currentTime;
@@ -72,13 +91,8 @@ var HlsPlayer = (function (_super) {
             this.isHlsSupported ?
                 React.createElement(Video_1.default, { ref: function (player) { return _this.player = player; }, autoPlay: autoPlay, src: src, muted: muted, onManifestLoaded: this.handleManifestLoaded.bind(this), onPositionChange: this.handlePositionChange.bind(this) }) :
                 React.createElement(flashVideo_1.default, { flashPath: this.props.swf, ref: function (player) { return _this.player = player; }, autoPlay: autoPlay, src: src, muted: muted, onManifestLoaded: this.handleManifestLoaded.bind(this), onPositionChange: this.handlePositionChange.bind(this) }),
-            this.props.controls ? (React.createElement("div", { style: { position: 'absolute', right: 0, bottom: 0, left: 0, height: '30px', color: '#fff', backgroundColor: 'rgba(0,0,0,0.3)' } },
-                React.createElement("button", { onClick: this.handlePause.bind(this) }, paused ? '播放' : '暂停'),
-                React.createElement("span", null, currentTime + " / " + duration),
-                React.createElement("button", { onClick: this.handleMute.bind(this) }, '静音'),
-                React.createElement("button", { onClick: this.handleToggleFullScreen.bind(this) }, '全屏'))) : null));
+            this.props.controls ? (React.createElement(Controls_1.default, { paused: paused, duration: duration, currentTime: currentTime, muted: muted, volume: volume, onPause: this.handlePause.bind(this), onSetPosition: this.handleSetPosition.bind(this), onMute: this.handleMute.bind(this), onSetVolume: this.handleSetVolume.bind(this), onToggleFullScreen: this.handleToggleFullScreen.bind(this) })) : null));
     };
     return HlsPlayer;
 }(React.Component));
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = HlsPlayer;
